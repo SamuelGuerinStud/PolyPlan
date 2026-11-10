@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheminement Interactif - Baccalauréat en Génie Mécanique à Polytechnique</title>
+<style>
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #171a1d;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.25);
+
+    --color-reussi: #22c55e;
+    --color-reussi-bg: rgba(34, 197, 94, 0.15);
+    --color-bloque: #ff6868;
+    --color-bloque-bg: rgba(107, 107, 107, 0.12);
+    --color-debloque: #639bef;
+    --color-debloque-bg: rgba(107, 107, 107, 0.25);
+    --color-pre: #f59e0b;
+    --color-post: #5d00ff;
+    --color-co: #f936ae;
+    --color-next: #639bef;
+    --color-next-bg: rgba(107, 107, 107, 0.25);
+    --color-progress: #ddb7ff;
+    --color-progress-bg: rgba(107, 107, 107, 0.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  header {
+    background: #191a1c;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-titles h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .header-titles h1 span {
+    color: var(--accent);
+  }
+
+  .header-titles p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-val {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: var(--accent);
+  }
+
+  .stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover {
+    background: #334155;
+    border-color: #64748b;
+  }
+
+  .btn-accent {
+    background: #0284c7;
+    border-color: #38bdf8;
+  }
+  .btn-accent:hover {
+    background: #0369a1;
+  }
+
+  .legend-strip {
+    background: #131d31;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    align-items: center;
+  }
+
+  .legend-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .legend-instruction {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .board-container {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  .columns-grid {
+    display: flex;
+    gap: 1.25rem;
+    min-width: max-content;
+  }
+
+  .session-col {
+    width: 250px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+
+  .session-header {
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .session-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .session-credits {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .courses-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+  }
+
+  .course-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.65rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    user-select: none;
+  }
+
+  .course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-color: #64748b;
+  }
+
+  .course-card.status-passed {
+    border-color: var(--color-reussi);
+    background: var(--color-reussi-bg);
+  }
+
+  .course-card.status-blocked {
+    border-color: rgba(239, 68, 68, 0.4);
+    opacity: 0.65;
+  }
+
+  .course-card.status-ready {
+    border-color: var(--color-debloque);
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+  }
+
+  /* Highlighting related courses */
+  .course-card.highlight-target {
+    outline: 2px solid #fff;
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+    transform: scale(1.02);
+    z-index: 10;
+  }
+
+  .course-card.highlight-prereq {
+    border-color: var(--color-pre) !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+  }
+
+  .course-card.highlight-coreq {
+    border-color: var(--color-co) !important;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.5) !important;
+    background: rgba(6, 182, 212, 0.15) !important;
+  }
+
+  .course-card.highlight-unlocks {
+    border-color: var(--color-post) !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.5) !important;
+    background: rgba(168, 85, 247, 0.15) !important;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .course-code {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .course-credits {
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+
+  .course-name {
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    line-height: 1.25;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .req-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    background: #334155;
+  }
+
+  .check-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #64748b;
+    text-align: center;
+    line-height: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    color: transparent;
+  }
+
+  .status-passed .check-icon {
+    background: var(--color-reussi);
+    border-color: var(--color-reussi);
+    color: #000;
+  }
+
+  /* SIDEBAR INSPECTOR */
+  .details-sidebar {
+    width: 330px;
+    background: #111827;
+    border-left: 1px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+  }
+
+  .details-sidebar h2 {
+    font-size: 1.15rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    color: #fff;
+  }
+
+  .sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sidebar-section h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .course-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    background: #1e293b;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .course-tag:hover {
+    border-color: var(--accent);
+  }
+
+  .tag-pre { border-color: var(--color-pre); color: #fbbf24; }
+  .tag-co { border-color: var(--color-co); color: #f936ae; }
+  .tag-post { border-color: var(--color-post); color: #5d00ff; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  .status-badge.reussi { background: var(--color-reussi-bg); color: var(--color-reussi); border: 1px solid var(--color-reussi); }
+  .status-badge.pret { background: var(--color-debloque-bg); color: var(--color-debloque); border: 1px solid var(--color-debloque); }
+  .status-badge.bloque { background: var(--color-bloque-bg); color: var(--color-bloque); border: 1px solid var(--color-bloque); }
+
+  .btn-toggle-course {
+    width: 100%;
+    padding: 0.7rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .btn-toggle-course.validate {
+    background: #16a34a;
+    color: #fff;
+  }
+  .btn-toggle-course.validate:hover {
+    background: #15803d;
+  }
+  .btn-toggle-course.unvalidate {
+    background: #dc2626;
+    color: #fff;
+  }
+  .btn-toggle-course.unvalidate:hover {
+    background: #b91c1c;
+  }
+
+  @media (max-width: 900px) {
+    .main-container { flex-direction: column; }
+    .details-sidebar { width: 100%; border-left: none; border-top: 1px solid var(--border-color); }
+  }
+</style>
+<style>
+:root{--bg-primary:#000;--bg-secondary:#101010;--bg-card:#101010;--border-color:#555;--text-muted:#ccc;}
+body,header,.board-container{background:#000}.legend-strip,.details-sidebar{background:#080808}.session-col{background:#070707}
+.course-card{opacity:1!important;border-width:2px;border-left-width:7px}.course-name{color:white}
+.course-card.status-passed{background:#082d19;border-color:#4dff91;box-shadow:none}
+.course-card.status-ready{background:var(--color-debloque-bg);border-color:var(--color-debloque);box-shadow:none}
+.course-card.status-blocked{background:var(--color-bloque-bg);border-color:var(--color-bloque)}
+.course-card.status-coreq{background:#302300;border-color:#ffd15c}
+.course-card.status-progress{background:var(--color-progress-bg)!important;border-color:var(--color-progress)!important;box-shadow:0 0 9px #ddb7ff44!important}
+.availability-label{display:block;font-size:.74rem;font-weight:700;margin-top:8px;color:white}
+.status-progress .availability-label{color:var(--color-progress)}.req-badge{background:#181818;color:#eee;white-space:normal}
+.course-card.highlight-target{outline:3px solid white;outline-offset:3px}
+#save-info{padding:8px 24px;background:#111;color:#ddd;font-size:.8rem}
+
+/* MODAL & ÉDITEUR INTERACTIF */
+.btn-edit-course {
+  background: #334155;
+  color: #fff;
+  border: 1px solid #475569;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+.btn-edit-course:hover { background: #475569; }
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center;
+  z-index: 9999; backdrop-filter: blur(3px);
+}
+.modal-window {
+  background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+  width: 440px; max-width: 95vw; padding: 1.25rem; color: #f8fafc;
+}
+.modal-window h3 { margin: 0 0 1rem 0; font-size: 1.15rem; color: #38bdf8; }
+.form-group { margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.form-group label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; }
+.form-group input, .form-group select {
+  background: #0f172a; border: 1px solid #334155; border-radius: 4px;
+  color: #fff; padding: 0.45rem 0.6rem; font-size: 0.85rem; outline: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: #38bdf8; }
+.modal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1.2rem; }
+.modal-actions-right { display: flex; gap: 0.5rem; }
+.btn-save-course { background: #0284c7; color: #fff; border: none; padding: 0.45rem 0.9rem; border-radius: 5px; cursor: pointer; font-weight: 600; }
+.btn-del-course { background: #dc2626; color: #fff; border: none; padding: 0.45rem 0.8rem; border-radius: 5px; cursor: pointer; font-weight: 600; }
+.btn-cancel-modal { background: #475569; color: #fff; border: none; padding: 0.45rem 0.8rem; border-radius: 5px; cursor: pointer; }
+
+/* Statut permanent : Cours débloqué à la prochaine session */
+.course-card.status-will-unlock {
+  background: var(--color-next-bg) !important;
+  border-color: var(--color-next) !important;
+  box-shadow: 0 0 10px rgba(99, 155, 239, 0.4) !important;
+}
+.course-card.status-will-unlock .availability-label {
+  color: #ffffff !important; /* Le texte suit exactement le bleu de la bordure */
+}
+
+/* Priorité absolue aux surbrillances lors d'un clic */
+.course-card.highlight-prereq {
+  background: rgba(245, 158, 11, 0.35) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.8) !important;
+}
+.course-card.highlight-prereq .availability-label {
+  color: #f59e0b !important;
+}
+
+.course-card.highlight-unlocks {
+  background: rgba(93, 0, 255, 0.35) !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.8) !important;
+}
+.course-card.highlight-unlocks .availability-label {
+  color: #c4b5fd !important;
+}
+
+.course-card.highlight-coreq {
+  background: rgba(249, 54, 174, 0.35) !important;
+  border-color: #f936ae !important;
+  box-shadow: 0 0 16px rgba(249, 54, 174, 0.8) !important;
+}
+.course-card.highlight-coreq .availability-label {
+  color: #f936ae !important;
+}
+
+</style></head>
+<body>
+
+<header>
+  <div class="header-titles">
+    <h1><span>PolyPlan</span> &bull; Génie Mécanique</h1>
+    <p>Simulateur d'arborescence des préalables et corequis</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-val" id="stat-completed-cr">0</span>
+      <span class="stat-lbl">Crédits acquis</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-total-cr">120</span>
+      <span class="stat-lbl">Objectif Bac</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-percent">0%</span>
+      <span class="stat-lbl">Progression</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="btn-add-course" class="btn">Ajouter un cours</button>
+    <button class="btn" id="btn-reset">Réinitialiser</button>
+    <button class="btn" id="btn-export">Sauvegarder JSON</button>
+    <button class="btn" id="btn-import">Importer / Restaurer</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+  </div>
+</header>
+
+<div class="legend-strip">
+  <div class="legend-tag"><div class="dot" style="background:var(--color-reussi);"></div> Réussi (Validé)</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-debloque);"></div> Débloqué (Prêt à suivre)</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-next);"></div> Débloqué ensuite</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-bloque);"></div> Bloqué (Préalables manquants)</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-pre);"></div> Préalable direct</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-co);"></div> Corequis</div>
+  <div class="legend-tag"><div class="dot" style="background:var(--color-post);"></div> Débloquera plus tard</div>
+  <div class="legend-tag"><div class="dot" style="background:#ddb7ff"></div> En cours</div><div class="legend-tag">
+  <div class="dot" style="background:#ffd15c"></div> Corequis à sélectionner</div>
+  <div class="legend-instruction">Cliquez sur un cours pour l'inspecter et suivre ses flux de dépendances</div>
+</div>
+
+<div id="save-info" role="status"></div><div class="main-container">
+  <div class="board-container">
+    <div class="columns-grid" id="columns-grid">
+      <!-- Colonnes générées dynamiquement -->
+    </div>
+  </div>
+
+  <div class="details-sidebar" id="sidebar" style="display: none;">
+    <h2>Détails du cours</h2>
+    <p id="sidebar-placeholder" style="color:var(--text-muted);font-size:0.85rem;">Sélectionnez ou survolez un cours dans la grille pour afficher ses informations de cheminement et ses flux.</p>
+
+    <div id="sidebar-content" style="display:none;" class="sidebar-section">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 id="sb-code" style="color:var(--accent); font-size:1.3rem; border:none; padding:0;"></h2>
+          <div id="sb-name" style="font-size:0.9rem; font-weight:600; color:#e2e8f0;"></div>
+        </div>
+        <span id="sb-credits" class="course-credits" style="font-size:0.85rem;"></span>
+      </div>
+
+      <div id="sb-status-badge"></div>
+
+      <button id="sb-toggle-btn" class="btn-toggle-course"></button>
+
+      <button id="sb-edit-btn" class="btn-edit-course">✏️ Modifier les paramètres du cours</button>
+
+      <div class="sidebar-section">
+        <h3>Session suggérée & Catégorie</h3>
+        <p id="sb-session-cat" style="font-size:0.85rem; color:#cbd5e1;"></p>
+      </div>
+
+      <div class="sidebar-section" id="sb-req-credits-box" style="display:none;">
+        <h3>Crédits préalables exigés</h3>
+        <p id="sb-req-credits" style="font-size:0.85rem; color:#f59e0b;"></p>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Préalables (PRE)</h3>
+        <div id="sb-pre-list" style="display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Corequis (CO)</h3>
+        <div id="sb-co-list" style="display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Cours débloqués par celui-ci</h3>
+        <div id="sb-unlocks-list" style="display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="course-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-window">
+    <h3 id="modal-title">Modifier le cours</h3>
+    <input type="hidden" id="edit-orig-code">
+    <div class="form-group">
+      <label>Sigle du cours (ex: MEC1410)</label>
+      <input type="text" id="edit-code">
+    </div>
+    <div class="form-group">
+      <label>Titre complet</label>
+      <input type="text" id="edit-name">
+    </div>
+    <div style="display:flex; gap:0.6rem;">
+      <div class="form-group" style="flex:1;">
+        <label>Crédits</label>
+        <input type="number" id="edit-credits" min="0" max="15">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Session (1 à 8)</label>
+        <input type="number" id="edit-session" min="1" max="12" step="any">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Catégorie</label>
+      <input type="text" id="edit-category" placeholder="Structures, Projets, etc.">
+    </div>
+    <div class="form-group">
+      <label>Préalables (séparés par des virgules)</label>
+      <input type="text" id="edit-pre" placeholder="Ex: MEC1410, MTH1106">
+    </div>
+    <div class="form-group">
+      <label>Corequis (séparés par des virgules)</label>
+      <input type="text" id="edit-co" placeholder="Ex: MEC1110">
+    </div>
+    <div class="form-group">
+      <label>Crédits exigés cumulés (optionnel)</label>
+      <input type="number" id="edit-req-credits" min="0" placeholder="Ex: 60">
+    </div>
+    <div class="modal-actions">
+      <button id="modal-btn-del" class="btn-del-course">Supprimer</button>
+      <div class="modal-actions-right">
+        <button id="modal-btn-cancel" class="btn-cancel-modal">Annuler</button>
+        <button id="modal-btn-save" class="btn-save-course">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COURSES = [
+{"code": "MEC1110", "name": "Projet intégrateur I", "credits": 3, "session": 2, "pre": [], "co": ["MEC1010", "MEC1510", "MEC2206", "MEC1420"], "category": "Projets"}, 
+{"code": "MEC1410", "name": "Statique", "credits": 2, "session": 1, "pre": [], "co": [], "category": "Structures"}, 
+{"code": "MEC1510", "name": "Modélisation de systèmes mécaniques (CAO)", "credits": 3, "session": 1, "pre": [], "co": [], "category": "Fabrication & CAO"}, 
+{"code": "MEC1206", "name": "Habiletés relationnelles", "credits": 1, "session": 1, "pre": [], "co": [], "category": "Compétences professionnelles"}, 
+{"code": "MEC2206", "name": "Travail en équipe collaboratif", "credits": 1, "session": 2, "pre": ["MEC1206"], "co": ["MEC1110"], "category": "Compétences professionnelles"}, 
+{"code": "MEC1010", "name": "Santé et sécurité en laboratoire", "credits": 0, "session": 1, "pre": [], "co": ["MEC1110"], "category": "Compétences professionnelles"}, 
+{"code": "INF1005D", "name": "Programmation procédurale en Python", "credits": 3, "session": 1, "pre": [], "co": [], "category": "Outils numériques"}, 
+{"code": "MTH1106", "name": "Calcul avancé pour le génie", "credits": 3, "session": 1, "pre": [], "co": [], "category": "Mathématiques & Sciences"}, 
+{"code": "MEC1210", "name": "Thermodynamique", "credits": 3, "session": 2, "pre": [], "co": [], "category": "Thermofluides"}, 
+{"code": "MEC1420", "name": "Résistance des matériaux I", "credits": 3, "session": 2, "pre": ["MEC1410"], "co": [], "category": "Structures"}, 
+{"code": "MEC2500", "name": "Définition technologique de produits mécaniques", "credits": 3, "session": 2, "pre": ["MEC1510"], "co": [], "category": "Fabrication & CAO"}, 
+{"code": "MTR2000", "name": "Matériaux métalliques", "credits": 3, "session": 3, "pre": [], "co": [], "category": "Matériaux"}, 
+{"code": "MTH1008", "name": "Algèbre linéaire appliquée", "credits": 3, "session": 2, "pre": [], "co": [], "category": "Mathématiques & Sciences"}, 
+{"code": "ELE1403", "name": "Éléments d'électrotechnique et d'électronique", "credits": 3, "session": 1, "pre": [], "co": [], "category": "Électricité & Dynamique"}, 
+{"code": "MEC1315", "name": "Technologies informationnelles en ingénierie", "credits": 2, "session": 3, "pre": ["INF1005D"], "co": [], "category": "Outils numériques"}, 
+{"code": "MEC2200", "name": "Dynamique des fluides", "credits": 3, "session": 3, "pre": ["MEC1210", "MTH1106"], "co": ["MTH1115"], "category": "Thermofluides"}, 
+{"code": "MEC2405", "name": "Résistance des matériaux II", "credits": 3, "session": 3, "pre": ["MEC1420"], "co": [], "category": "Structures"}, 
+{"code": "MTH1115", "name": "Équations différentielles", "credits": 3, "session": 3, "pre": ["MTH1106", "MTH1008"], "co": [], "category": "Mathématiques & Sciences"}, 
+{"code": "MEC3000I", "name": "Épreuves initiales de communication", "credits": 0, "session": 1, "pre": [], "co": [], "category": "Compétences professionnelles"}, 
+{"code": "MEC2105", "name": "Projet intégrateur II", "credits": 3, "session": 4, "pre": ["MEC1110", "MEC2500"], "co": ["MEC2310", "MEC2420", "MTR2000"], "category": "Projets", "req_credits": 30}, 
+{"code": "MEC2115", "name": "Méthodes expérimentales et instrumentation en mécanique", "credits": 3, "session": 4, "pre": ["MEC1420"], "co": [], "category": "Outils numériques"}, 
+{"code": "MEC2310", "name": "Éléments de machines", "credits": 3, "session": 4, "pre": ["MEC1420"], "co": [], "category": "Structures"}, 
+{"code": "MEC2420", "name": "Dynamique de l'ingénieur", "credits": 3, "session": 4, "pre": ["MEC1410", "MTH1106"], "co": ["MTH1115"], "category": "Électricité & Dynamique"}, 
+{"code": "MEC3200", "name": "Transmission de chaleur", "credits": 3, "session": 4, "pre": ["MEC2200"], "co": [], "category": "Thermofluides"}, 
+{"code": "MEC3000A", "name": "Ateliers en CEO", "credits": 0, "session": 2, "pre": [], "co": [], "category": "Compétences professionnelles"}, 
+{"code": "STGO1-MEC", "name": "Stage obligatoire I en génie mécanique", "credits": 9, "session": 5.5, "pre": [], "co": [], "category": "Stage", "req_credits": 55}, 
+{"code": "GCH3545", "name": "Modélisation numérique en ingénierie", "credits": 3, "session": 5, "pre": ["MEC1315"], "co": ["MEC3200"], "category": "Outils numériques"}, 
+{"code": "MEC2435", "name": "Vibrations", "credits": 3, "session": 5, "pre": ["MEC2420", "INF1005D", "MTH1115"], "co": [], "category": "Électricité & Dynamique"}, 
+{"code": "MEC3305", "name": "Analyse et commande des systèmes dynamiques", "credits": 3, "session": 5, "pre": ["INF1005D", "MEC2420", "MTH1115"], "co": [], "category": "Électricité & Dynamique"}, 
+{"code": "MEC3520", "name": "Industrialisation des produits", "credits": 3, "session": 5, "pre": ["MEC2500"], "co": ["MTR2000"], "category": "Fabrication & CAO"}, 
+{"code": "SSH3201", "name": "Économique de l'ingénieur", "credits": 3, "session": 5, "pre": [], "co": [], "category": "Compétences professionnelles", "req_credits": 27}, 
+{"code": "MEC3900", "name": "Projet intégrateur III", "credits": 3, "session": 6, "pre": ["MEC2105"], "co": ["MEC3000"], "category": "Projets", "req_credits": 60}, 
+{"code": "MEC3000", "name": "Habiletés personnelles de l'ingénieur", "credits": 1, "session": 6, "pre": ["MEC3000I", "MEC3000A"], "co": ["MEC3900"], "category": "Compétences professionnelles"}, 
+{"code": "MEC3455", "name": "Systèmes hydrauliques et pneumatiques", "credits": 3, "session": 6, "pre": ["MEC2420"], "co": [], "category": "Thermofluides"}, 
+{"code": "MTH2302B", "name": "Probabilités et statistique", "credits": 3, "session": 6, "pre": ["INF1005D", "MTH1106"], "co": [], "category": "Mathématiques & Sciences"}, 
+{"code": "ELECTIF-1", "name": "Cours au choix / Électif", "credits": 3, "session": 6, "pre": [], "co": [], "category": "Orientation & Options"}, 
+{"code": "ORIENT-1", "name": "Cours d'orientation thématique I", "credits": 3, "session": 6, "pre": [], "co": [], "category": "Orientation & Options"}, 
+{"code": "MEC8370-A", "name": "Projet intégrateur IV (Partie 1)", "credits": 2, "session": 7, "pre": ["MEC3900", "STGO1-MEC"], "co": [], "category": "Projets", "req_credits": 70}, 
+{"code": "MEC3430", "name": "Matériaux polymères", "credits": 3, "session": 7, "pre": ["MEC1420", "MTR2000"], "co": [], "category": "Matériaux"}, 
+{"code": "MEC8276", "name": "Systèmes de pompage, ventil. et compression", "credits": 3, "session": 7, "pre": ["MEC2200"], "co": [], "category": "Thermofluides", "req_credits": 60}, 
+{"code": "MEC8371", "name": "Mesures et modélisation dynamique", "credits": 3, "session": 7, "pre": ["MEC2115", "MEC3305"], "co": [], "category": "Électricité & Dynamique", "req_credits": 60}, 
+{"code": "ORIENT-2", "name": "Cours d'orientation thématique II", "credits": 3, "session": 7, "pre": [], "co": [], "category": "Orientation & Options"}, 
+{"code": "MEC8370-B", "name": "Projet intégrateur IV (Partie 2)", "credits": 4, "session": 8, "pre": ["MEC8370-A"], "co": [], "category": "Projets"}, 
+{"code": "SSH3101", "name": "Analyse sociotechnique de l'ingénierie", "credits": 3, "session": 8, "pre": [], "co": [], "category": "Compétences professionnelles", "req_credits": 30}, 
+{"code": "SSH3501", "name": "Éthique appliquée en ingénierie", "credits": 2, "session": 8, "pre": [], "co": [], "category": "Compétences professionnelles", "req_credits": 40}, 
+{"code": "ORIENT-3", "name": "Cours d'orientation thématique III", "credits": 3, "session": 8, "pre": [], "co": [], "category": "Orientation & Options"}, 
+{"code": "ORIENT-4", "name": "Cours d'orientation thématique IV", "credits": 3, "session": 8, "pre": [], "co": [], "category": "Orientation & Options"}];
+
+// *************************************************
+// *** MODIFIER SELON LE DEBUT DE VOTRE PARCOURS ***
+const SESSIONS_DEF = [
+  { id: 1, title: "Trimestre 1 <br>(Hiver 2026)", subtitle: "" },
+  { id: 1.5, title: "Été", subtitle: "" },
+  { id: 2, title: "Trimestre 2 <br>(Automne 2026)", subtitle: "" },
+  { id: 3, title: "Trimestre 3 <br>(Hiver 2027)", subtitle: "" },
+  { id: 3.5, title: "Été", subtitle: "" },
+  { id: 4, title: "Trimestre 4 <br>(Automne 2027)", subtitle: "" },
+  { id: 5, title: "Trimestre 5 <br>(Hiver 2028)", subtitle: "" },
+  { id: 5.5, title: "Été", subtitle: "" },
+  { id: 6, title: "Trimestre 6 <br>(Automne 2028)", subtitle: "" },
+  { id: 7, title: "Trimestre 7 <br>(Hiver 2029)", subtitle: "" },
+  { id: 7.5, title: "Été", subtitle: "" },
+  { id: 8, title: "Trimestre 8 <br>(Automne 2029)", subtitle: "" },
+];
+// *************************************************
+
+
+let completedCourses = new Set();
+let plannedCourses = new Set();
+let selectedCourseCode = null;
+
+// Initialisation de la grille
+const CATEGORY_ORDER = [
+  "Projets",
+  "Structures",
+  "Thermofluides",
+  "Fabrication & CAO",
+  "Électricité & Dynamique",
+  "Matériaux",
+  "Mathématiques & Sciences",
+  "Outils numériques",
+  "Compétences professionnelles",
+  "Orientation & Options"
+];
+
+function buildGrid() {
+  const grid = document.getElementById("columns-grid");
+  grid.innerHTML = "";
+
+  SESSIONS_DEF.forEach(sess => {
+    const col = document.createElement("div");
+    col.className = "session-col";
+
+    //const sessCourses = COURSES.filter(c => c.session === sess.id).sort((a, b) => (a.category || "").localeCompare(b.category || ""));
+    const sessCourses = COURSES
+      .filter(c => c.session === sess.id)
+      .sort((a, b) => {
+        const indexA = CATEGORY_ORDER.indexOf(a.category);
+        const indexB = CATEGORY_ORDER.indexOf(b.category);
+
+        // Si une catégorie n'est pas dans la liste, on la place à la fin (999)
+        const orderA = indexA === -1 ? 999 : indexA;
+        const orderB = indexB === -1 ? 999 : indexB;
+
+        // Tri principal par catégorie
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+
+        // Tri secondaire : par sigle alphabétique si deux cours ont la même catégorie
+        return a.code.localeCompare(b.code);
+      });
+
+    const totCr = sessCourses.reduce((acc, c) => acc + (c.credits || 0), 0);
+
+    col.innerHTML = `
+      <div class="session-header">
+        <div>
+          <div class="session-title">${sess.title}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">${sess.subtitle}</div>
+        </div>
+        <div class="session-credits">${totCr} cr.</div>
+      </div>
+      <div class="courses-stack" id="sess-stack-${sess.id.toString().replace('.', '_')}"></div>
+    `;
+    grid.appendChild(col);
+
+    const stack = col.querySelector(".courses-stack");
+    sessCourses.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "course-card";
+      card.id = `card-${c.code}`;
+      card.dataset.code = c.code;
+
+      card.innerHTML = `
+        <div class="card-top">
+          <span class="course-code">${c.code}</span>
+          <span class="course-credits">${c.credits} cr.</span>
+        </div>
+        <div class="course-name">${c.name}</div>
+        <div class="card-footer">
+          <span class="req-badge">${c.pre.length ? 'PRE: ' + c.pre.join(', ') : 'Aucun PRE'}</span>
+          <span class="check-icon">&#10003;</span>
+        </div>
+      `;
+
+      card.addEventListener("click", () => handleCourseClick(c.code));
+      stack.appendChild(card);
+    });
+  });
+
+  updateAllCourseStatuses();
+  updateStats();
+}
+
+function getCourse(code) {
+  return COURSES.find(c => c.code === code);
+}
+
+function getCompletedCredits() {
+  let sum = 0;
+  completedCourses.forEach(code => {
+    const c = getCourse(code);
+    if (c && c.credits && c.code !== "STGO1-MEC") sum += c.credits; // STGO1 est crédité hors-crédits contributifs
+  });
+  return sum;
+}
+
+function checkPrerequisitesMet(course) {
+  const currentCr = getCompletedCredits();
+  if (course.req_credits && currentCr < course.req_credits) {
+    return false;
+  }
+  for (let p of course.pre) {
+    if (!completedCourses.has(p)) return false;
+  }
+  return true;
+}
+
+// Détermine si un cours sera débloqué après réussite des cours « En cours »
+function willBeUnlockedByInProgress(course) {
+  if (typeof plannedCourses === 'undefined' || plannedCourses.size === 0) return false;
+
+  // Calcul du potentiel de crédits
+  const plannedCredits = COURSES
+    .filter(c => plannedCourses.has(c.code))
+    .reduce((acc, c) => acc + (c.credits || 0), 0);
+  const potentialCredits = getCompletedCredits() + plannedCredits;
+
+  if (course.req_credits && potentialCredits < course.req_credits) {
+    return false;
+  }
+
+  // Tous les préalables doivent être soit déjà réussis, soit en cours
+  for (let p of course.pre) {
+    if (!completedCourses.has(p) && !plannedCourses.has(p)) return false;
+  }
+
+  // Doit dépendre d'au moins un cours actuellement en cours
+  const reliesOnPre = course.pre.some(p => plannedCourses.has(p));
+  const reliesOnCr = course.req_credits && getCompletedCredits() < course.req_credits;
+  return reliesOnPre || reliesOnCr;
+}
+
+function updateAllCourseStatuses() {
+  if (typeof plannedCourses !== 'undefined') {
+    // Un cours réussi ne peut pas être simultanément en cours
+    completedCourses.forEach(x => plannedCourses.delete(x));
+  }
+
+  COURSES.forEach(c => {
+    const el = document.getElementById(`card-${c.code}`);
+    if (!el) return;
+
+    // 1. Nettoie les classes de statut de base
+    el.classList.remove(
+      'status-passed',
+      'status-ready',
+      'status-blocked',
+      'status-coreq',
+      'status-progress',
+      'status-will-unlock'
+    );
+
+    let label = '';
+
+    // 2. Attribution du statut permanent du cours
+    if (completedCourses.has(c.code)) {
+      el.classList.add('status-passed');
+      label = '✓ Réussi';
+    } else if (typeof plannedCourses !== 'undefined' && plannedCourses.has(c.code)) {
+      // Le cours est marqué « En cours » : on vérifie s'il lui manque des corequis
+      const missing = typeof missingCo === 'function' ? missingCo(c) : [];
+      if (missing.length > 0) {
+        // Devient jaune uniquement dans ce cas
+        el.classList.add('status-coreq');
+        label = '⚠ Corequis à sélectionner (' + missing.join(', ') + ')';
+      } else {
+        // Reste mauve normal « En cours »
+        el.classList.add('status-progress');
+        label = '◉ En cours';
+        if (!checkPrerequisitesMet(c)) {
+          label += ' • Préalables manquants';
+        }
+      }
+    } else if (checkPrerequisitesMet(c)) {
+      // Cours prêt à suivre (non sélectionné) : reste bleu normal
+      el.classList.add('status-ready');
+      label = '● Prêt à suivre';
+    } else {
+      // Cours bloqué : vérifie s'il sera débloqué ensuite
+      if (willBeUnlockedByInProgress(c)) {
+        el.classList.add('status-will-unlock');
+        label = '⏳ Débloqué ensuite';
+      } else {
+        el.classList.add('status-blocked');
+        label = '⛔ Bloqué — préalables';
+      }
+    }
+
+    // 3. Mise à jour de l'étiquette texte
+    let b = el.querySelector('.availability-label');
+    if (!b) {
+      b = document.createElement('span');
+      b.className = 'availability-label';
+      el.appendChild(b);
+    }
+    b.textContent = label;
+  });
+
+  if (typeof persist === 'function') {
+    persist();
+  }
+}
+
+function updateStats() {
+  const completedCr = getCompletedCredits();
+  document.getElementById("stat-completed-cr").textContent = completedCr;
+  const pct = Math.min(100, Math.round((completedCr / 120) * 100));
+  document.getElementById("stat-percent").textContent = `${pct}%`;
+}
+
+function deselectCourse() {
+  selectedCourseCode = null;
+  clearHighlights();
+  document.getElementById("sidebar-content").style.display = "none";
+  document.getElementById("sidebar-placeholder").style.display = "block";
+  // Masque complètement le volet latéral
+  document.getElementById("sidebar").style.display = "none";
+}
+
+function handleCourseClick(code) {
+  // Si on clique à nouveau sur le cours déjà sélectionné, on le désélectionne (effet bascule)
+  if (selectedCourseCode === code) {
+    deselectCourse();
+    return;
+  }
+  selectedCourseCode = code;
+  highlightCourseGraph(code);
+  renderSidebar(code);
+}
+
+// Clic ailleurs dans la page pour désélectionner
+document.addEventListener("click", (e) => {
+  // Si aucun cours n'est sélectionné, rien à faire
+  if (!selectedCourseCode) return;
+
+  // On ignore le clic s'il provient d'une carte de cours, du panneau latéral ou d'une modale
+  const isCourseCard = e.target.closest(".course-card");
+  const isSidebar = e.target.closest("#sidebar");
+  const isModal = e.target.closest(".modal-overlay, .modal-window");
+
+  if (!isCourseCard && !isSidebar && !isModal) {
+    deselectCourse();
+  }
+});
+
+function clearHighlights() {
+  document.querySelectorAll(".course-card").forEach(el => {
+    el.classList.remove("highlight-target", "highlight-prereq", "highlight-coreq", "highlight-unlocks");
+  });
+}
+
+// Fonction pour retrouver tous les préalables en cascade (ancêtres)
+function getAllPrerequisites(startCode) {
+  const allPre = new Set();
+  const queue = [startCode];
+
+  while (queue.length > 0) {
+    const currentCode = queue.shift();
+    const course = getCourse(currentCode);
+    if (course && course.pre) {
+      course.pre.forEach(p => {
+        if (!allPre.has(p)) {
+          allPre.add(p);
+          queue.push(p); // Explore récursivement les préalables de ce cours
+        }
+      });
+    }
+  }
+  return allPre;
+}
+
+// Trouve récursivement tous les cours débloqués (en aval) uniquement via les préalables
+function getAllDependents(startCode) {
+  const allDescendants = new Set();
+  const queue = [startCode];
+
+  while (queue.length > 0) {
+    const currentCode = queue.shift();
+    // Ne sélectionne QUE les cours dont le cours actuel est un préalable strict
+    const directDependents = COURSES.filter(other => 
+      other.pre && other.pre.includes(currentCode)
+    );
+
+    directDependents.forEach(dep => {
+      if (!allDescendants.has(dep.code)) {
+        allDescendants.add(dep.code);
+        queue.push(dep.code);
+      }
+    });
+  }
+  return allDescendants;
+}
+
+function highlightCourseGraph(code) {
+  clearHighlights();
+  const c = getCourse(code);
+  if (!c) return;
+
+  const targetCard = document.getElementById(`card-${c.code}`);
+  if (targetCard) targetCard.classList.add("highlight-target");
+
+  // Tous les préalables récursifs (directs et indirects) du cours sélectionné
+  const allPrereqs = getAllPrerequisites(c.code);
+
+  // Corequis directs du cours sélectionné + ajout de leurs propres préalables
+  c.co.forEach(co => {
+    const el = document.getElementById(`card-${co}`);
+    if (el) el.classList.add("highlight-coreq");
+
+    // Récupère et ajoute en cascade les préalables du corequis
+    const coPrereqs = getAllPrerequisites(co);
+    coPrereqs.forEach(p => allPrereqs.add(p));
+  });
+
+  // Application de la couleur de préalable à l'ensemble trouvé (en évitant les corequis directs)
+  allPrereqs.forEach(p => {
+    if (!c.co.includes(p)) {
+      const el = document.getElementById(`card-${p}`);
+      if (el) el.classList.add("highlight-prereq");
+    }
+  });
+
+  // Tous les cours dépendants en aval (descendants complets)
+  const allDeps = getAllDependents(c.code);
+  allDeps.forEach(depCode => {
+    // Ne pas écraser la classe corequis direct s'il en fait partie
+    if (!c.co.includes(depCode)) {
+      const el = document.getElementById(`card-${depCode}`);
+      if (el) el.classList.add("highlight-unlocks");
+    }
+  });
+}
+
+
+
+function renderSidebar(code) {
+  const c = getCourse(code);
+  if (!c) return;
+
+  // Affiche le volet latéral
+  document.getElementById("sidebar").style.display = "flex";
+  document.getElementById("sidebar-placeholder").style.display = "none";
+  document.getElementById("sidebar-content").style.display = "flex";
+
+  document.getElementById("sb-code").textContent = c.code;
+  document.getElementById("sb-name").textContent = c.name;
+  document.getElementById("sb-credits").textContent = `${c.credits} crédits`;
+  document.getElementById("sb-session-cat").textContent = `Session ${c.session} • ${c.category}`;
+
+  const isPassed = completedCourses.has(c.code);
+  const isReady = checkPrerequisitesMet(c);
+
+  const statusBadge = document.getElementById("sb-status-badge");
+  if (isPassed) {
+    statusBadge.innerHTML = `<span class="status-badge reussi">Validé (Réussi)</span>`;
+  } else if (isReady) {
+    statusBadge.innerHTML = `<span class="status-badge pret">Débloqué (Prêt à l'inscription)</span>`;
+  } else {
+    statusBadge.innerHTML = `<span class="status-badge bloque">Bloqué (Préalables manquants)</span>`;
+  }
+
+  const toggleBtn = document.getElementById("sb-toggle-btn");
+  if (isPassed) {
+    toggleBtn.textContent = "Marquer comme NON complété";
+    toggleBtn.className = "btn-toggle-course unvalidate";
+    toggleBtn.onclick = () => {
+      completedCourses.delete(c.code);
+      updateAllCourseStatuses();
+      updateStats();
+      highlightCourseGraph(c.code);
+      renderSidebar(c.code);
+    };
+  } else {
+    toggleBtn.textContent = "Marquer comme RÉUSSI";
+    toggleBtn.className = "btn-toggle-course validate";
+    toggleBtn.onclick = () => {
+      completedCourses.add(c.code);
+      updateAllCourseStatuses();
+      updateStats();
+      highlightCourseGraph(c.code);
+      renderSidebar(c.code);
+    };
+  }
+
+  // Crédits exigés
+  const reqCrBox = document.getElementById("sb-req-credits-box");
+  if (c.req_credits) {
+    reqCrBox.style.display = "block";
+    const current = getCompletedCredits();
+    reqCrBox.querySelector("p").textContent = `${c.req_credits} crédits requis (Actuel: ${current} cr.)`;
+  } else {
+    reqCrBox.style.display = "none";
+  }
+
+  // Listes
+  const preList = document.getElementById("sb-pre-list");
+  preList.innerHTML = c.pre.length ? "" : "<span style='color:var(--text-muted);font-size:0.8rem;'>Aucun</span>";
+  c.pre.forEach(p => {
+    const tag = document.createElement("span");
+    tag.className = "course-tag tag-pre";
+    tag.textContent = p + (completedCourses.has(p) ? " ✓" : " ✗");
+    tag.onclick = () => handleCourseClick(p);
+    preList.appendChild(tag);
+  });
+
+  const coList = document.getElementById("sb-co-list");
+  coList.innerHTML = c.co.length ? "" : "<span style='color:var(--text-muted);font-size:0.8rem;'>Aucun</span>";
+  c.co.forEach(co => {
+    const tag = document.createElement("span");
+    tag.className = "course-tag tag-co";
+    tag.textContent = co;
+    tag.onclick = () => handleCourseClick(co);
+    coList.appendChild(tag);
+  });
+
+  const unlocksList = document.getElementById("sb-unlocks-list");
+  const unlocks = COURSES.filter(other => other.pre.includes(c.code));
+  unlocksList.innerHTML = unlocks.length ? "" : "<span style='color:var(--text-muted);font-size:0.8rem;'>Aucun cours ultérieur directement lié</span>";
+  unlocks.forEach(u => {
+    const tag = document.createElement("span");
+    tag.className = "course-tag tag-post";
+    tag.textContent = u.code;
+    tag.onclick = () => handleCourseClick(u.code);
+    unlocksList.appendChild(tag);
+  });
+}
+
+// Boutons header
+document.getElementById("btn-reset").onclick = () => {
+  completedCourses.clear();
+  updateAllCourseStatuses();
+  updateStats();
+  if (selectedCourseCode) {
+    highlightCourseGraph(selectedCourseCode);
+    renderSidebar(selectedCourseCode);
+  }
+};
+
+// Lancement
+buildGrid();
+</script>
+<script>
+const STORAGE_KEY='chemiplan-mecanique-v2';
+let restoring=false;
+function snapshot(){return {version:3,date:new Date().toISOString(),courses:COURSES,completedCourses:[...completedCourses],plannedCourses:[...plannedCourses],inProgressCourses:[...plannedCourses]};}
+function persist(){if(restoring)return;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));document.getElementById('save-info').textContent='Sauvegarde locale automatique effectuée. Utilisez « Sauvegarder JSON » pour une copie durable.';}catch(e){document.getElementById('save-info').textContent='Sauvegarde locale indisponible : sauvegardez un fichier JSON.';}}
+function missingCo(c){return c.co.filter(x=>!completedCourses.has(x)&&!plannedCourses.has(x));}
+
+const oldSidebar=renderSidebar;
+renderSidebar=function(code){
+ oldSidebar(code);const c=getCourse(code);if(!c)return;
+ if(plannedCourses.has(code)&&!completedCourses.has(code))document.getElementById('sb-status-badge').innerHTML='<span class="status-badge" style="background:#281140;color:#ddb7ff;border:1px solid #c58aff">◉ En cours</span>';
+ else if(!completedCourses.has(code)&&checkPrerequisitesMet(c))document.getElementById('sb-status-badge').innerHTML=missingCo(c).length?'<span class="status-badge" style="color:#ffe084;border:1px solid #ffd15c">Corequis à sélectionner</span>':'<span class="status-badge pret">Conditions satisfaites</span>';
+ let b=document.getElementById('progress-btn');if(!b){b=document.createElement('button');b.id='progress-btn';b.className='btn';document.getElementById('sb-toggle-btn').after(b);}
+ b.textContent=plannedCourses.has(code)?'Retirer le statut « En cours »':'Marquer comme EN COURS';b.disabled=completedCourses.has(code);
+ b.onclick=()=>{if(plannedCourses.has(code))plannedCourses.delete(code);else plannedCourses.add(code);refreshState();};
+ let note=document.getElementById('progress-note');if(!note){note=document.createElement('p');note.id='progress-note';note.style.cssText='font-size:.78rem;color:#ddd';b.after(note);}
+ const warnings=[];if(!checkPrerequisitesMet(c))warnings.push('Préalables ou crédits manquants.');if(missingCo(c).length)warnings.push('Corequis non couverts : '+missingCo(c).join(', ')+'.');
+ note.textContent=(plannedCourses.has(code)&&warnings.length?'⚠ '+warnings.join(' ')+' ':'')+'Les cours en cours comptent pour les corequis simultanés, mais pas pour les préalables réussis ni les crédits acquis. Aucun contrôle des horaires.';
+};
+function refreshState(){updateAllCourseStatuses();updateStats();if(selectedCourseCode&&getCourse(selectedCourseCode)){highlightCourseGraph(selectedCourseCode);renderSidebar(selectedCourseCode);}}
+function parseBackup(d){
+ if(!d||typeof d!=='object')throw Error('Objet JSON attendu.');
+ const cs=d.courses===undefined?COURSES:d.courses;if(!Array.isArray(cs)||!cs.length)throw Error('Cours invalides.');
+ const ids=cs.map(c=>c.code);if(ids.some(x=>typeof x!=='string')||new Set(ids).size!==ids.length)throw Error('Codes invalides.');
+ for(const c of cs){if(typeof c.name!=='string'||!Number.isFinite(c.credits)||c.credits<0||!Number.isFinite(c.session)||c.session<=0)throw Error('Cours invalide.');for(const k of ['pre','co'])if(!Array.isArray(c[k])||c[k].some(x=>!ids.includes(x)||x===c.code))throw Error('Dépendance invalide.');if(c.req_credits!==undefined&&(!Number.isFinite(c.req_credits)||c.req_credits<0))throw Error('Seuil invalide.');}
+ const done=d.completedCourses,plan=d.inProgressCourses??d.plannedCourses??[];
+ if(!Array.isArray(done)||!Array.isArray(plan)||[...done,...plan].some(x=>!ids.includes(x)))throw Error('Statuts invalides.');
+ return {cs:JSON.parse(JSON.stringify(cs)),done:new Set(done),plan:new Set(plan)};
+}
+function applyBackup(p){restoring=true;COURSES.splice(0,COURSES.length,...p.cs);completedCourses=p.done;plannedCourses=p.plan;selectedCourseCode=null;
+ for(const s of new Set(COURSES.map(c=>c.session)))if(!SESSIONS_DEF.some(x=>x.id===s))SESSIONS_DEF.push({id:s,title:'Session '+s,subtitle:'Personnalisée'});
+ SESSIONS_DEF.sort((a,b)=>a.id-b.id);document.getElementById('sidebar-content').style.display='none';document.getElementById('sidebar-placeholder').style.display='block';buildGrid();restoring=false;refreshState();}
+document.getElementById('btn-export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='cheminement_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+document.getElementById('btn-import').onclick=()=>document.getElementById('import-file').click();
+document.getElementById('import-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const p=parseBackup(JSON.parse(await f.text()));if(confirm('Remplacer le cheminement actuel par cette sauvegarde ?'))applyBackup(p);}catch(err){alert('Import refusé : '+err.message);}e.target.value='';};
+document.getElementById('btn-reset').onclick=()=>{if(confirm('Effacer tous les statuts ? Les règles seront conservées.')){completedCourses.clear();plannedCourses.clear();refreshState();}};
+try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)applyBackup(parseBackup(JSON.parse(raw)));else refreshState();}catch(e){document.getElementById('save-info').textContent='Restauration locale impossible. Importez votre fichier JSON.';}
+
+// --- ÉDITEUR INTERACTIF DE COURS ---
+const modal = document.getElementById('course-modal');
+
+function openCourseEditor(code = null) {
+  const isNew = !code;
+  document.getElementById('modal-title').textContent = isNew ? "Ajouter un cours" : `Modifier ${code}`;
+  document.getElementById('edit-orig-code').value = isNew ? "" : code;
+  document.getElementById('modal-btn-del').style.display = isNew ? 'none' : 'block';
+
+  // Le champ reste toujours modifiable
+  document.getElementById('edit-code').disabled = false;
+
+  if (isNew) {
+    document.getElementById('edit-code').value = "";
+    document.getElementById('edit-name').value = "";
+    document.getElementById('edit-credits').value = 3;
+    document.getElementById('edit-session').value = 1;
+    document.getElementById('edit-category').value = "Général";
+    document.getElementById('edit-pre').value = "";
+    document.getElementById('edit-co').value = "";
+    document.getElementById('edit-req-credits').value = "";
+  } else {
+    const c = getCourse(code);
+    if (!c) return;
+    document.getElementById('edit-code').value = c.code;
+    document.getElementById('edit-name').value = c.name;
+    document.getElementById('edit-credits').value = c.credits;
+    document.getElementById('edit-session').value = c.session;
+    document.getElementById('edit-category').value = c.category || "";
+    document.getElementById('edit-pre').value = (c.pre || []).join(', ');
+    document.getElementById('edit-co').value = (c.co || []).join(', ');
+    document.getElementById('edit-req-credits').value = c.req_credits || "";
+  }
+  modal.style.display = 'flex';
+}
+
+document.getElementById('modal-btn-cancel').onclick = () => { modal.style.display = 'none'; };
+document.getElementById('btn-add-course').onclick = () => openCourseEditor();
+document.getElementById('sb-edit-btn').onclick = () => {
+  if (selectedCourseCode) openCourseEditor(selectedCourseCode);
+};
+
+// Enregistrer les modifications ou un nouveau cours
+document.getElementById('modal-btn-save').onclick = () => {
+  const origCode = document.getElementById('edit-orig-code').value;
+  const newCode = document.getElementById('edit-code').value.trim().toUpperCase();
+  const name = document.getElementById('edit-name').value.trim();
+  const credits = parseInt(document.getElementById('edit-credits').value, 10) || 0;
+  const session = parseFloat(document.getElementById('edit-session').value) || 1;
+  const category = document.getElementById('edit-category').value.trim() || "Général";
+  const parseList = str => str.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+  const pre = parseList(document.getElementById('edit-pre').value);
+  const co = parseList(document.getElementById('edit-co').value);
+  const reqCreditsRaw = document.getElementById('edit-req-credits').value;
+  const req_credits = reqCreditsRaw !== "" ? parseInt(reqCreditsRaw, 10) : undefined;
+
+  if (!newCode || !name) { 
+    alert("Le sigle et le titre sont obligatoires."); 
+    return; 
+  }
+
+  // Vérifier les doublons de sigle
+  if ((!origCode && COURSES.some(c => c.code === newCode)) || 
+      (origCode && origCode !== newCode && COURSES.some(c => c.code === newCode))) {
+    alert(`Le sigle ${newCode} existe déjà.`);
+    return;
+  }
+
+  if (!origCode) {
+    // Nouveau cours
+    const newCourse = { code: newCode, name, credits, session, pre, co, category };
+    if (req_credits !== undefined) newCourse.req_credits = req_credits;
+    COURSES.push(newCourse);
+  } else {
+    // Cours existant
+    const c = getCourse(origCode);
+    if (c) {
+      // Si le sigle a changé, mettre à jour les dépendances partout
+      if (origCode !== newCode) {
+        c.code = newCode;
+        COURSES.forEach(other => {
+          if (other.pre) other.pre = other.pre.map(p => p === origCode ? newCode : p);
+          if (other.co) other.co = other.co.map(co => co === origCode ? newCode : co);
+        });
+        if (completedCourses.has(origCode)) {
+          completedCourses.delete(origCode);
+          completedCourses.add(newCode);
+        }
+        if (plannedCourses.has(origCode)) {
+          plannedCourses.delete(origCode);
+          plannedCourses.add(newCode);
+        }
+        selectedCourseCode = newCode;
+      }
+
+      c.name = name;
+      c.credits = credits;
+      c.session = session;
+      c.category = category;
+      c.pre = pre;
+      c.co = co;
+      if (req_credits !== undefined) c.req_credits = req_credits; 
+      else delete c.req_credits;
+    }
+  }
+
+  // Adapter les colonnes de sessions
+  if (!SESSIONS_DEF.some(x => x.id === session)) {
+    SESSIONS_DEF.push({ id: session, title: 'Session ' + session, subtitle: 'Personnalisée' });
+    SESSIONS_DEF.sort((a, b) => a.id - b.id);
+  }
+
+  modal.style.display = 'none';
+  buildGrid();
+  refreshState();
+  persist();
+};
+
+// Supprimer un cours
+document.getElementById('modal-btn-del').onclick = () => {
+  const origCode = document.getElementById('edit-orig-code').value;
+  if (!origCode || !confirm(`Supprimer définitivement ${origCode} ?`)) return;
+
+  const idx = COURSES.findIndex(c => c.code === origCode);
+  if (idx !== -1) COURSES.splice(idx, 1);
+
+  completedCourses.delete(origCode);
+  plannedCourses.delete(origCode);
+
+  // Nettoyage des dépendances dans les autres cours
+  COURSES.forEach(c => {
+    if (c.pre) c.pre = c.pre.filter(x => x !== origCode);
+    if (c.co) c.co = c.co.filter(x => x !== origCode);
+  });
+
+  selectedCourseCode = null;
+  document.getElementById('sidebar-content').style.display = 'none';
+  document.getElementById('sidebar-placeholder').style.display = 'block';
+  modal.style.display = 'none';
+  buildGrid();
+  refreshState();
+  persist();
+};
+
+</script></body>
+</html>
