@@ -1,7 +1,7 @@
 # PolyPlan
 Cheminement Interactif pour Baccalauréat à Polytechnique
 
-[![PolyPlan - Genie Mecanique]](https://samuelguerinstud.github.io/PolyPlan/PolyPlan-Mecanique.html)
+[PolyPlan - Genie Mecanique](https://samuelguerinstud.github.io/PolyPlan/PolyPlan-Mecanique.html)
 
 OBJECTIF
 Simulateur interactif de cheminement du baccalauréat en génie mécanique. Il affiche l'arborescence des cours avec leurs préalables et corequis, pour planifier son parcours.
