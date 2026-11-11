@@ -34,11 +34,11 @@ OBJECTIF:
 - Débloquera plus tard : cours qui dépendent du cours sélectionné.
 
 4. UTILISATION
-	1) Cliquez sur un cours pour voir ses flux de dépendances.
-	2) Marquez les cours réussis ou en cours; les états et crédits se mettent à jour automatiquement.
-	3) Repérez les cours « prêts à suivre » pour choisir votre prochain trimestre.
-	4) Modifiez les cours au choix et de concentration en utilisant le bouton « Modifier les paramètres du cours »
-	5) Sauvegardez en JSON pour conserver votre progression.
+	1. Cliquez sur un cours pour voir ses flux de dépendances.
+	2. Marquez les cours réussis ou en cours; les états et crédits se mettent à jour automatiquement.
+	3. Repérez les cours « prêts à suivre » pour choisir votre prochain trimestre.
+	4. Modifiez les cours au choix et de concentration en utilisant le bouton « Modifier les paramètres du cours »
+	5. Sauvegardez en JSON pour conserver votre progression.
 
  Pour récupérer votre progression, simplement appuyez le bouton « Restaurer » et sélectionnez le fichier JSON enregistré.
 
