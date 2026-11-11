@@ -3,10 +3,11 @@ Cheminement Interactif pour Baccalauréat à Polytechnique
 
 [PolyPlan - Genie Mecanique](https://samuelguerinstud.github.io/PolyPlan/PolyPlan-Mecanique.html)
 
-OBJECTIF
-Simulateur interactif de cheminement du baccalauréat en génie mécanique. Il affiche l'arborescence des cours avec leurs préalables et corequis, pour planifier son parcours.
+OBJECTIF:
+	Simulateur interactif de cheminement du baccalauréat en génie mécanique. Il affiche l'arborescence des cours avec leurs préalables et corequis, pour planifier son parcours.
 
-** Note: L'application ne prend pas en compte les conditions de trimestres (si un cours se donne uniquement à l'automne par exemple), c'est donc à vous de le vérifier à l'aide du PDF de cheminement fourni par la Polytechnique.
+** Note: 
+	L'application ne prend pas en compte les conditions de trimestres (si un cours se donne uniquement à l'automne par exemple), c'est donc à vous de le vérifier à l'aide du PDF de cheminement fourni par la Polytechnique.
 
 ** Modification:
 - Sessions: Si vous souhaitez modifier le nom des sessions selon le debut de votre parcours, vous pouvez modifier le fichier HTML avec Visual Studio Code ou un éditeur de texte. Simplement rechercher dans le document la section entourée de "***". Vous pouvez ajoutez des sessions jusqu'à un maximum de 12. Pour une session d'été, simplement mettre un .5 au bon endroit comme dans les sessions mises par défaut.
@@ -38,7 +39,8 @@ Simulateur interactif de cheminement du baccalauréat en génie mécanique. Il a
 	3) Repérez les cours « prêts à suivre » pour choisir votre prochain trimestre.
 	4) Modifiez les cours au choix et de concentration en utilisant le bouton « Modifier les paramètres du cours »
 	5) Sauvegardez en JSON pour conserver votre progression.
-	*) Pour récupérer votre progression, simplement appuyez le bouton « Restaurer » et sélectionnez le fichier JSON enregistré.
+
+ Pour récupérer votre progression, simplement appuyez le bouton « Restaurer » et sélectionnez le fichier JSON enregistré.
 
 
 Fait par Samuel Guérin (90% Gemini 👍)
