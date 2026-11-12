@@ -722,18 +722,18 @@ const COURSES = [
 // *************************************************
 // *** MODIFIER SELON LE DEBUT DE VOTRE PARCOURS ***
 const SESSIONS_DEF = [
-  { id: 1, title: "Trimestre 1 <br>(Hiver 2026)", subtitle: "" },
-  { id: 1.5, title: "Été", subtitle: "" },
-  { id: 2, title: "Trimestre 2 <br>(Automne 2026)", subtitle: "" },
-  { id: 3, title: "Trimestre 3 <br>(Hiver 2027)", subtitle: "" },
-  { id: 3.5, title: "Été", subtitle: "" },
-  { id: 4, title: "Trimestre 4 <br>(Automne 2027)", subtitle: "" },
-  { id: 5, title: "Trimestre 5 <br>(Hiver 2028)", subtitle: "" },
-  { id: 5.5, title: "Été", subtitle: "" },
-  { id: 6, title: "Trimestre 6 <br>(Automne 2028)", subtitle: "" },
-  { id: 7, title: "Trimestre 7 <br>(Hiver 2029)", subtitle: "" },
-  { id: 7.5, title: "Été", subtitle: "" },
-  { id: 8, title: "Trimestre 8 <br>(Automne 2029)", subtitle: "" },
+  { id: 1, title: "Trimestre 1", subtitle: "" },
+  //{ id: 1.5, title: "Été", subtitle: "" },
+  { id: 2, title: "Trimestre 2", subtitle: "" },
+  { id: 3, title: "Trimestre 3", subtitle: "" },
+  //{ id: 3.5, title: "Été", subtitle: "" },
+  { id: 4, title: "Trimestre 4", subtitle: "" },
+  { id: 5, title: "Trimestre 5", subtitle: "" },
+  //{ id: 5.5, title: "Été", subtitle: "" },
+  { id: 6, title: "Trimestre 6", subtitle: "" },
+  { id: 7, title: "Trimestre 7", subtitle: "" },
+  //{ id: 7.5, title: "Été", subtitle: "" },
+  { id: 8, title: "Trimestre 8", subtitle: "" },
 ];
 // *************************************************
 
@@ -1214,7 +1214,7 @@ function parseBackup(d){
  return {cs:JSON.parse(JSON.stringify(cs)),done:new Set(done),plan:new Set(plan)};
 }
 function applyBackup(p){restoring=true;COURSES.splice(0,COURSES.length,...p.cs);completedCourses=p.done;plannedCourses=p.plan;selectedCourseCode=null;
- for(const s of new Set(COURSES.map(c=>c.session)))if(!SESSIONS_DEF.some(x=>x.id===s))SESSIONS_DEF.push({id:s,title:'Session '+s,subtitle:'Personnalisée'});
+ for(const s of new Set(COURSES.map(c=>c.session)))if(!SESSIONS_DEF.some(x=>x.id===s))SESSIONS_DEF.push({id:s,title:'Été',subtitle:'Personnalisée'});
  SESSIONS_DEF.sort((a,b)=>a.id-b.id);document.getElementById('sidebar-content').style.display='none';document.getElementById('sidebar-placeholder').style.display='block';buildGrid();restoring=false;refreshState();}
 document.getElementById('btn-export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='cheminement_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 document.getElementById('btn-import').onclick=()=>document.getElementById('import-file').click();
@@ -1330,7 +1330,7 @@ document.getElementById('modal-btn-save').onclick = () => {
 
   // Adapter les colonnes de sessions
   if (!SESSIONS_DEF.some(x => x.id === session)) {
-    SESSIONS_DEF.push({ id: session, title: 'Session ' + session, subtitle: 'Personnalisée' });
+    SESSIONS_DEF.push({ id: session, title: 'Été', subtitle: 'Personnalisée' });
     SESSIONS_DEF.sort((a, b) => a.id - b.id);
   }
 
