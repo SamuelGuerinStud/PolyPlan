@@ -43,4 +43,4 @@ Cheminement Interactif pour Baccalauréat à Polytechnique
 <br><br>
 
 Fait par Samuel Guérin (90% Gemini 👍)
-Si vous avez plus de questions, contactez moi par courriel au samuel.guerin@etud.polymtl.ca
+Si vous avez plus de questions, contactez moi par courriel au <samuel.guerin@etud.polymtl.ca>
