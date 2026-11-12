@@ -10,7 +10,7 @@ OBJECTIF:
 	L'application ne prend pas en compte les conditions de trimestres (si un cours se donne uniquement à l'automne par exemple), c'est donc à vous de le vérifier à l'aide du PDF de cheminement fourni par la Polytechnique.
 
 ** Modification:
-- Sessions: Si vous souhaitez modifier le nom des sessions selon le debut de votre parcours, vous pouvez modifier le fichier HTML avec Visual Studio Code ou un éditeur de texte. Simplement rechercher dans le document la section entourée de "***". Vous pouvez ajoutez des sessions jusqu'à un maximum de 12. Pour une session d'été, simplement mettre un .5 au bon endroit comme dans les sessions mises par défaut.
+Vous pouvez ajouter une session d'été en ajoutant un .5 après la session correspondante. Par exemple: pour une session d'été après le premier trimestre, mettre session 1.5 dans un cours et le programme ajoutera la session d'été automatiquement.
 
 
 1. BOUTONS
