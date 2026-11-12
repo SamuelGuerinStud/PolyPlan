@@ -14,12 +14,12 @@ Cheminement Interactif pour Baccalauréat à Polytechnique
 
 
 ##### UTILISATION
-	1. Cliquez sur un cours pour voir ses flux de dépendances.
-	2. Marquez les cours réussis ou en cours; les états et crédits se mettent à jour automatiquement.
-	3. Repérez les cours « prêts à suivre » pour choisir votre prochain trimestre.
-	4. Modifiez les cours au choix et de concentration en utilisant le bouton « Modifier les paramètres du cours »
-	5. Sauvegardez en JSON pour conserver votre progression.
-	6. Pour récupérer votre progression, appuyez sur le bouton « Restaurer » et sélectionnez le fichier JSON enregistré.
+1. Cliquez sur un cours pour voir ses flux de dépendances.
+2. Marquez les cours réussis ou en cours; les états et crédits se mettent à jour automatiquement.
+3. Repérez les cours « prêts à suivre » pour choisir votre prochain trimestre.
+4. Modifiez les cours au choix et de concentration en utilisant le bouton « Modifier les paramètres du cours »
+5. Sauvegardez en JSON pour conserver votre progression.
+6. Pour récupérer votre progression, appuyez sur le bouton « Restaurer » et sélectionnez le fichier JSON enregistré.
 
 
 ##### BOUTONS
